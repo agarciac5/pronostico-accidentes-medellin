@@ -1,0 +1,87 @@
+# Datos originales, descargas y datos preparados (locales)
+/[Dd]ataset/
+/[Dd]atasets/
+/data/sources/
+/data/interim/*
+!/data/interim/.gitkeep
+/data/processed/*
+!/data/processed/.gitkeep
+*.parquet
+*.arrow
+*.feather
+*.zip
+*.7z
+*.rar
+
+# Instrucciones del asistente y material de apoyo local
+/[Pp]rocesosIA/
+[Aa][Gg][Ee][Nn][Tt][Ss].[Mm][Dd]
+[Aa][Gg][Ee][Nn][Tt].[Mm][Dd]
+[Gg][Ll][Oo][Ss][Aa][Rr][Ii][Oo].[Mm][Dd]
+/Documentos preliminares/
+/Guias/
+/[Aa]poyo/
+/[Aa]poyos/
+/material_apoyo/
+/material_de_apoyo/
+/.agents/
+/.codex/
+
+# Resultados regenerables: auditorías, exportaciones y modelos entrenados
+/reports/*
+!/reports/.gitkeep
+/outputs/
+/artifacts/
+/models/*
+!/models/.gitkeep
+/mlruns/
+/mlartifacts/
+*.log
+
+# Python: entornos, cachés y archivos de construcción
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.egg-info/
+/build/
+/dist/
+
+# Spark: almacenamiento temporal y metadatos locales
+/spark-warehouse/
+/metastore_db/
+/derby.log
+/spark-events/
+/checkpoint/
+/checkpoints/
+
+# Configuración privada y credenciales locales
+.env
+.env.*
+!.env.example
+!.env.template
+.streamlit/secrets.toml
+/.aws/
+
+# Editor, sistema operativo y temporales
+/.vscode/
+/.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+~$*
+*.tmp
+*.bak
+
+# Se conservan código, pruebas, notebooks y documentación pública.
+# No ignorar globalmente *.md, *.json, *.pdf o *.docx:
+# pueden formar parte de la documentación o entrega del proyecto.
