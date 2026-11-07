@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Variables de entorno
+.env
+.env.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Modelos generados
+*.joblib
+*.pkl
+
+# Datos locales
+backend/data/raw/
+backend/data/interim/
+backend/data/processed/
