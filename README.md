@@ -39,7 +39,13 @@ pnpm start  # Ejecutar la versión de producción
 
 ## Backend
 
-El backend estará ubicado en `backend/`. Actualmente se encuentra en desarrollo y su estructura está preparada para agregar la API, los modelos, los servicios y las pruebas.
+### Preparación y exploración de datos
+
+La etapa del integrante 1 está en `backend/data_pipeline/prepare.py`. Genera auditoría de calidad, población por comuna y año, series diarias/semanales/mensuales y gráficas descriptivas. Las instrucciones, reglas y relación con las materias están en [docs/DATOS.md](docs/DATOS.md).
+
+El proceso todavía no entrena modelos ni conecta el tablero. Las cifras actuales del frontend siguen siendo de demostración.
+
+El backend se encuentra en `backend/`. La preparación de datos está implementada; la API, los modelos predictivos y los servicios de consulta conservan su estructura inicial.
 
 Cuando esté implementado, sus instrucciones de instalación y ejecución se documentarán en esta sección.
 

@@ -1,0 +1,12 @@
+clase,gravedad,incidentes
+Atropello,HERIDO,10385
+Atropello,MUERTO,187
+Caida Ocupante,HERIDO,4018
+Caida Ocupante,MUERTO,6
+Choque,HERIDO,28555
+Choque,MUERTO,270
+Incendio,HERIDO,8
+Otro,HERIDO,22115
+Otro,MUERTO,34
+Volcamiento,HERIDO,3551
+Volcamiento,MUERTO,6
