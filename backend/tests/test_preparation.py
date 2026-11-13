@@ -7,8 +7,8 @@ import unittest
 import openpyxl
 import pandas as pd
 
-from data_pipeline.prepare import (COMMUNES, aggregate_panel, daily_panel, numeric_coordinate,
-                                   read_accidents, read_population)
+from data_pipeline.prepare import (COMMUNES, aggregate_panel, daily_panel, geospatial_candidates,
+                                   numeric_coordinate, read_accidents, read_population)
 
 
 class PreparationTests(unittest.TestCase):
@@ -45,6 +45,18 @@ class PreparationTests(unittest.TestCase):
         self.assertAlmostEqual(numeric_coordinate('6.28183705'), 6.28183705)
         self.assertIsNone(numeric_coordinate('N/D'))
         self.assertIsNone(numeric_coordinate(None))
+
+    def test_geospatial_candidates_keep_only_plausible_point_fields(self):
+        incidents = pd.DataFrame([
+            dict(fecha=pd.Timestamp('2021-01-01'), hora=12, clase='Choque', gravedad='HERIDO',
+                 comuna_id=1, latitud=6.2, longitud=-75.6, coordenadas_revisables=True, llave=1),
+            dict(fecha=pd.Timestamp('2021-01-02'), hora=13, clase='Choque', gravedad='HERIDO',
+                 comuna_id=1, latitud=5.9, longitud=-75.6, coordenadas_revisables=False, llave=2),
+        ])
+        points = geospatial_candidates(incidents)
+        self.assertEqual(len(points), 1)
+        self.assertEqual(points.iloc[0].latitud, 6.2)
+        self.assertNotIn('llave', points.columns)
 
     def test_week_crossing_validation_boundary_is_flagged(self):
         weekly = aggregate_panel(self.daily('2024-12-30', '2025-01-05'), 'W-SUN')

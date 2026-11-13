@@ -36,7 +36,7 @@ La fecha de población difiere de la referencia de julio de 2025 descrita en la 
 1. Ventana inclusiva: 1 de enero de 2021 a 31 de agosto de 2025. Categorías objetivo: `HERIDO` y `MUERTO`. Se cuentan incidentes, sin sumar víctimas ni inferir la severidad de lesiones.
 2. Comunas: códigos administrativos enteros 1–16. Los corregimientos 50, 60, 70, 80 y 90 se excluyen por alcance, no por mala calidad. `N/D` y códigos no asignables se reportan aparte. No se adivina la comuna a partir de direcciones.
 3. Identidad: duplicados idénticos de `LLAVE` se cuentan una sola vez. Una llave con valores contradictorios detiene el proceso. Atributos iguales con llaves diferentes no se eliminan automáticamente porque podrían representar incidentes distintos.
-4. Las coordenadas y horas faltantes no eliminan incidentes del conteo por comuna. Para mapas se requiere otra validación espacial. La caja geográfica del script es solo un control de plausibilidad, no una prueba de pertenencia a un polígono.
+4. Las coordenadas y horas faltantes no eliminan incidentes del conteo por comuna. `data/processed/incidentes_puntos_candidatos.parquet` conserva localmente los incidentes con coordenadas dentro de una caja geográfica amplia para una futura revisión espacial; esa caja no prueba pertenencia a una vía o comuna. El archivo contiene puntos individuales y no se debe publicar. La latitud/longitud por sí solas no identifican calles ni su pendiente: se requiere una red vial para asociar puntos a tramos y una fuente de elevación para estimar pendiente.
 5. Población: solo hoja general, solo filas `Area Geográfica = Total`, solo comunas 1–16. Se comprueba que cada Total concilie con sus áreas. No se suman también `Cabecera Municipal` ni otras hojas de sexo/edad. Se conserva cada código territorial, incluso códigos de instituciones con población cero; no se deduplica por nombre de barrio.
 6. La población debe ser positiva por comuna-año y la unión debe ser muchos-a-uno. Una ausencia o duplicación en las claves detiene el proceso.
 
@@ -55,6 +55,7 @@ Las semanas son de lunes a domingo y los meses son calendario. Los paneles conse
 | Salida local | Unidad y uso |
 | --- | --- |
 | `data/interim/incidentes_urbanos.parquet` | Incidente, para preparación y exploración local. No publicar puntos ni direcciones individuales. |
+| `data/processed/incidentes_puntos_candidatos.*` | Incidente con coordenadas dentro de la caja de plausibilidad, en CSV y Parquet, como insumo local de revisión/map-matching. No contiene identificador de llave y no se debe publicar; no equivale a una capa de calles. |
 | `data/processed/poblacion_comuna_anio.*` | Una fila por comuna-año, 2021–2025, contexto retrospectivo. |
 | `data/processed/serie_diaria.*` | Comuna-fecha, target `accidentes_registrados`, población contextual, evidencia de cobertura. |
 | `data/processed/serie_semanal.*` | Comuna-semana lunes-domingo, conteo, fechas y banderas de cobertura. |

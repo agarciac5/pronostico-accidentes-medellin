@@ -139,6 +139,7 @@ def _read_accidents(path):
     audit = dict(conteos=dict(counts), exclusiones_disjuntas=dict(excluded),
                  faltantes_ventana=dict(quality), gravedad_ventana=dict(severity),
                  coordenadas_no_utilizables_seleccion=int((~data.coordenadas_revisables).sum()),
+                 coordenadas_revisables_seleccion=int(data.coordenadas_revisables.sum()),
                  horas_no_utilizables_seleccion=int(data.hora.isna().sum()),
                  fecha_inicio=str(START.date()), fecha_fin=str(END.date()))
     years = pd.DataFrame([dict(anio=y, gravedad=s, registros=n) for (y, s), n in sorted(yearly.items())])
@@ -237,6 +238,11 @@ def aggregate_panel(daily, frequency):
     return result
 
 
+def geospatial_candidates(incidents):
+    columns = ['fecha', 'hora', 'clase', 'gravedad', 'comuna_id', 'latitud', 'longitud']
+    return incidents.loc[incidents.coordenadas_revisables, columns].reset_index(drop=True)
+
+
 def save_table(frame, path):
     frame.to_parquet(path.with_suffix('.parquet'), index=False)
     frame.to_csv(path.with_suffix('.csv'), index=False, encoding='utf-8')
@@ -321,6 +327,9 @@ def main():
         if int(panel.conteo_observado_archivo.sum()) != len(incidents):
             raise AssertionError(f'No concilia panel {name}; revisar cobertura antes de continuar.')
     incidents.to_parquet(silver / 'incidentes_urbanos.parquet', index=False)
+    points = geospatial_candidates(incidents)
+    points.to_parquet(gold / 'incidentes_puntos_candidatos.parquet', index=False)
+    points.to_csv(gold / 'incidentes_puntos_candidatos.csv', index=False, encoding='utf-8')
     save_table(population, gold / 'poblacion_comuna_anio')
     save_table(daily, gold / 'serie_diaria')
     save_table(weekly, gold / 'serie_semanal')
