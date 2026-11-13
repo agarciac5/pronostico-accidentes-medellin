@@ -1,0 +1,80 @@
+{
+  "version_pipeline": 1,
+  "python": "3.12.14",
+  "fuentes": {
+    "accidentes": {
+      "archivo": "Fatal_Road_Traffic.xlsx",
+      "bytes": 63354522,
+      "sha256": "43160e9a45210a05f90b3988d558a526fac31535d0049461af6ded0d8268458d"
+    },
+    "poblacion": {
+      "archivo": "poblacion_barrios_veredas.xlsx",
+      "bytes": 5534213,
+      "sha256": "0a18bccd5ed25aa43bd8d017733cd16b42251967d2761e1fb4a07128a828d9fe"
+    }
+  },
+  "accidentes": {
+    "conteos": {
+      "filas_originales": 702540,
+      "filas_ventana": 145200,
+      "victimas_ventana": 114488,
+      "incidentes_seleccionados": 106006
+    },
+    "exclusiones_disjuntas": {
+      "fuera_ventana": 557340,
+      "comuna_rural": 6117,
+      "sin_victimas_o_gravedad_no_objetivo": 30712,
+      "comuna_no_asignable": 2365
+    },
+    "faltantes_ventana": {
+      "Latitud": 10307,
+      "Longitud": 10307,
+      "Codigo Comuna Planeacion": 2471
+    },
+    "gravedad_ventana": {
+      "HERIDO": 113674,
+      "SOLO DAÑOS": 30712,
+      "MUERTO": 814
+    },
+    "coordenadas_no_utilizables_seleccion": 5901,
+    "horas_no_utilizables_seleccion": 0,
+    "fecha_inicio": "2021-01-01",
+    "fecha_fin": "2025-08-31"
+  },
+  "poblacion": {
+    "hoja": "Barrios - Veredas",
+    "area_elegida": "Total",
+    "barrios_urbanos": 269,
+    "filas_comuna_anio": 80,
+    "notas_fuente": [
+      "Fuente: DANE, Proyecciones de población - Dirección técnica de Censos y Demografía (DCD)",
+      "Actualizado el 28 de Noviembre de 2025"
+    ],
+    "uso": "Contexto descriptivo retrospectivo; versión no acreditada para backtesting predictivo."
+  },
+  "dias_sin_registros_ciudad": [
+    "2022-12-31",
+    "2023-12-31",
+    "2024-12-31"
+  ],
+  "paneles": {
+    "semanal": {
+      "filas": 3904,
+      "registros_archivo": 106006,
+      "filas_target_nulo": 48,
+      "periodos_incompletos": 16
+    },
+    "mensual": {
+      "filas": 896,
+      "registros_archivo": 106006,
+      "filas_target_nulo": 48,
+      "periodos_incompletos": 0
+    }
+  },
+  "eda": {
+    "incidentes_entrenamiento": 69135,
+    "comuna_mayor_conteo": "La Candelaria",
+    "dias_con_cero_registrado": 1436,
+    "horas_sin_franja": 0
+  }
+}
