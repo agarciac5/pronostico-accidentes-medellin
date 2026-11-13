@@ -10,6 +10,7 @@ __pycache__/
 
 # Entornos virtuales
 .venv/
+.venv312/
 venv/
 env/
 
@@ -25,6 +26,3 @@ env/
 *.pkl
 
 # Datos locales
-backend/data/raw/
-backend/data/interim/
-backend/data/processed/

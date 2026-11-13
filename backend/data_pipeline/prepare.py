@@ -299,7 +299,7 @@ def eda(incidents, daily, output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--accidents', type=Path, default=Path('datasets/Fatal_Road_Traffic.xlsx'))
-    parser.add_argument('--population', type=Path, default=Path('data/raw/poblacion_barrios_veredas.xlsx'))
+    parser.add_argument('--population', type=Path, default=Path('datasets/poblacion_barrios_veredas.xlsx'))
     args = parser.parse_args()
     base = Path(__file__).resolve().parents[1]
     for name in ('accidents', 'population'):

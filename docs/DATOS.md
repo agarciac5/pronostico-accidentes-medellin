@@ -11,7 +11,7 @@ python -m venv backend/.venv
 backend/.venv/Scripts/python.exe -m pip install -r backend/requirements-data.txt
 ```
 
-Conservar `backend/datasets/Fatal_Road_Traffic.xlsx`. Copiar el Excel de población proporcionado por el equipo a `backend/data/raw/poblacion_barrios_veredas.xlsx`. Esta copia local está excluida de Git. No editar los originales. La redistribución de población queda pendiente de verificar sus condiciones de uso.
+Conservar `backend/datasets/Fatal_Road_Traffic.xlsx` y colocar el Excel de población proporcionado por el equipo en `backend/datasets/poblacion_barrios_veredas.xlsx`. La copia local de población está excluida de Git. No editar los originales. La redistribución de población queda pendiente de verificar sus condiciones de uso.
 
 ```powershell
 cd backend

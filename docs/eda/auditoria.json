@@ -9,8 +9,8 @@
     },
     "poblacion": {
       "archivo": "poblacion_barrios_veredas.xlsx",
-      "bytes": 5534213,
-      "sha256": "0a18bccd5ed25aa43bd8d017733cd16b42251967d2761e1fb4a07128a828d9fe"
+      "bytes": 5500550,
+      "sha256": "82bf1cbe9a915878361a66e6387d7b806e8945720e0c6ec0e5b6575c54cd22fe"
     }
   },
   "accidentes": {
