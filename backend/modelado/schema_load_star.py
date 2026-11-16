@@ -24,8 +24,8 @@ spark = SparkSession.builder \
     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
     .getOrCreate()
 
-ruta_nuevo_lote = "ruta/a/nuevos_datos/lote_actual.parquet"
-ruta_datamart = "ruta/de/salida/datamart_delta"
+ruta_nuevo_lote = "backend/data/processed/incidentes_puntos_candidatos.parquet"
+ruta_datamart = "backend/data/datamart/datamart_delta"
 
 # Función auxiliar para hacer MERGE (solo inserta si la llave no existe)
 def upsert_delta(df_nuevos, ruta_tabla, columna_llave):
