@@ -12,10 +12,26 @@ Antes de ejecutarlo debes:
 Al final se ejecuta verify(), que valida tu carga. No lo modifiques.
 """
 
+# Esta línea descarga y conecta automáticamente los archivos .jar de Delta Lake con Java
+
+from delta import configure_spark_with_delta_pip
+from delta.tables import DeltaTable
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import IntegerType
-from delta.tables import DeltaTable
+
+# Configura el builder de Spark con las extensiones de Delta
+builder = (
+    SparkSession.builder.appName("CargaDataMart")
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+    .config(
+        "spark.sql.catalog.spark_catalog",
+        "org.apache.spark.sql.delta.catalog.DeltaCatalog",
+    )
+)
+
+# Crea la sesión conectando los archivos .jar de Delta Lake
+spark = configure_spark_with_delta_pip(builder).getOrCreate()
 
 # 1. Inicializar Spark con soporte para Delta Lake
 spark = SparkSession.builder \
