@@ -17,8 +17,8 @@ spark = configure_spark_with_delta_pip(builder).getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")  # Oculta advertencias para ver limpio el resultado
 
 # 2. Define la ruta base de tu Data Mart (ajusta si usas otra carpeta)
-ruta_datamart = "ruta/a/tu/datamart"
-tablas = ["dim_fecha"]  # Agrega aquí el resto de tus dimensiones y tabla de hechos
+ruta_datamart = "backend/data/datamart/datamart_delta"
+tablas = ["dim_fecha", "dim_hora", "dim_tipo_incidente", "dim_ubicacion", "fact_incidentes"]  # Agrega aquí el resto de tus dimensiones y tabla de hechos
 
 for tabla in tablas:
     ruta_tabla = os.path.join(ruta_datamart, tabla)
