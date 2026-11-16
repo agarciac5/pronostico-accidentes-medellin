@@ -17,7 +17,7 @@ spark = configure_spark_with_delta_pip(builder).getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")  # Oculta advertencias para ver limpio el resultado
 
 # 2. Define la ruta base de tu Data Mart (ajusta si usas otra carpeta)
-ruta_datamart = "backend/data/datamart/datamart_delta"
+ruta_datamart = "backend/data/datamart/datamart_delta_urbanos"
 tablas = ["dim_fecha", "dim_hora", "dim_tipo_incidente", "dim_ubicacion", "fact_incidentes"]  # Agrega aquí el resto de tus dimensiones y tabla de hechos
 
 for tabla in tablas:
@@ -28,8 +28,7 @@ for tabla in tablas:
 
     # Verifica que sea una tabla Delta válida
     if not DeltaTable.isDeltaTable(spark, ruta_tabla):
-        print(f"ERROR: No se encontró una tabla Delta en {ruta_tabla}")
-        continue
+        raise ValueError(f"No se encontró una tabla Delta en {ruta_tabla}")
 
     # Lee la tabla Delta
     df = spark.read.format("delta").load(ruta_tabla)
