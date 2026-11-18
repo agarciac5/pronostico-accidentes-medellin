@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import {
   getCommuneRows,
+  periodOptions,
   type Scale,
 } from "@/lib/mobility-data"
 import { CommunesView } from "@/components/communes-view"
@@ -53,7 +54,7 @@ const navigation: NavigationItem[] = [
   {
     id: "map",
     title: "Concentración geográfica",
-    description: "Mapa de riesgo por comuna",
+    description: "Concentración de accidentes por comuna",
     icon: MapPinned,
     tone: "orange",
   },
@@ -80,21 +81,13 @@ const navigation: NavigationItem[] = [
   },
 ]
 
-const periodOptions: Record<Scale, string[]> = {
-  diaria: ["1 sep 2025", "2 sep 2025", "3 sep 2025"],
-  semanal: ["1–7 sep 2025", "8–14 sep 2025", "15–21 sep 2025"],
-  mensual: ["sep 2025", "oct 2025", "nov 2025"],
-}
-
 const scaleOptions: { value: Scale; label: string }[] = [
   { value: "diaria", label: "Diaria" },
-  { value: "semanal", label: "Semanal" },
-  { value: "mensual", label: "Mensual" },
 ]
 
 export function MobilityDashboard() {
   const [activeSection, setActiveSection] = useState<SectionId>("summary")
-  const [scale, setScale] = useState<Scale>("semanal")
+  const [scale, setScale] = useState<Scale>("diaria")
   const [periodIndex, setPeriodIndex] = useState(0)
   const [selectedCommune, setSelectedCommune] = useState("all")
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -202,7 +195,7 @@ export function MobilityDashboard() {
           </div>
 
           <div className="header-action-row">
-            <div className="header-controls" aria-label="Filtros del tablero">
+            {!["patterns", "methodology"].includes(activeSection) && <div className="header-controls" aria-label="Filtros del tablero">
               <label className="header-select">
                 <span>Escala</span>
                 <select
@@ -217,7 +210,7 @@ export function MobilityDashboard() {
                   ))}
                 </select>
               </label>
-              <label className="header-select header-select--period">
+              {activeSection !== "model" && <label className="header-select header-select--period">
                 <span>Periodo</span>
                 <select
                   aria-label="Periodo de pronóstico"
@@ -230,7 +223,7 @@ export function MobilityDashboard() {
                     </option>
                   ))}
                 </select>
-              </label>
+              </label>}
               {showCommuneFilter ? (
                 <label className="header-select header-select--commune">
                   <span>Comuna</span>
@@ -248,7 +241,7 @@ export function MobilityDashboard() {
                   </select>
                 </label>
               ) : null}
-            </div>
+            </div>}
             <button
               className="header-help-button"
               type="button"
@@ -284,9 +277,9 @@ export function MobilityDashboard() {
               onSelectCommune={setSelectedCommune}
             />
           ) : activeSection === "patterns" ? (
-            <PatternsView periodLabel={currentPeriod} />
+            <PatternsView periodLabel="2021–agosto 2025 · histórico completo" />
           ) : activeSection === "model" ? (
-            <ModelView rows={visibleRows} scale={scale} selectedCommuneName={selectedCommuneName} />
+            <ModelView rows={allRows} scale={scale} selectedCommuneName="Todas las comunas" />
           ) : (
             <MethodologyView />
           )}

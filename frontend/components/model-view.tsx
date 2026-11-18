@@ -42,10 +42,10 @@ type ModelViewProps = {
 }
 
 export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) {
-  const scoresForScale = modelScores.map((model) => model.scores[scale])
+  const scoresForScale = modelScores.map((model) => model.scores.diaria)
   const bestMae = Math.min(...scoresForScale.map((score) => score.mae))
   const bestRmse = Math.min(...scoresForScale.map((score) => score.rmse))
-  const bestModel = modelScores.find((model) => model.scores[scale].mae === bestMae)
+  const bestModel = modelScores.find((model) => model.scores.diaria.mae === bestMae)
   const errorRows = [...rows].sort((first, second) => first.mae - second.mae)
   const errorChartData = errorRows.map((row) => ({
     name: row.name,
@@ -55,7 +55,7 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
   return (
     <div className="view-stack">
       <DataNotice>
-        Compara las métricas de error por modelo, comuna y escala temporal.
+        Entrenamiento jul 2022–ago 2024; validación sep–dic 2024, 1.936 filas. Resultados para las 16 comunas.
       </DataNotice>
 
       <section className="model-summary-row" aria-label="Resumen de validación">
@@ -63,7 +63,7 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
           <span className="model-summary-icon model-summary-icon--teal"><ShieldCheck size={20} strokeWidth={2.4} aria-hidden="true" /></span>
           <div>
             <span>Esquema de validación</span>
-            <strong>Walk-forward</strong>
+            <strong>Bloque temporal fijo</strong>
             <small>Partición cronológica · sin mezclar futuro con pasado</small>
           </div>
         </article>
@@ -100,11 +100,9 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
               <tr>
                 <th scope="col" rowSpan={2}>Modelo</th>
                 <th scope="colgroup" colSpan={2}>Diaria</th>
-                <th scope="colgroup" colSpan={2}>Semanal</th>
-                <th scope="colgroup" colSpan={2}>Mensual</th>
               </tr>
               <tr>
-                {(["diaria", "semanal", "mensual"] as Scale[]).flatMap((modelScale) => [
+                {(["diaria"] as const).flatMap((modelScale) => [
                   <th scope="col" key={`${modelScale}-mae`}>MAE</th>,
                   <th scope="col" key={`${modelScale}-rmse`}>RMSE</th>,
                 ])}
@@ -117,7 +115,7 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
                     <strong>{model.name}</strong>
                     <small>{model.description}</small>
                   </th>
-                  {(["diaria", "semanal", "mensual"] as Scale[]).flatMap((modelScale) => {
+                  {(["diaria"] as const).flatMap((modelScale) => {
                     const score = model.scores[modelScale]
                     const bestScaleMae = Math.min(...modelScores.map((item) => item.scores[modelScale].mae))
                     const bestScaleRmse = Math.min(...modelScores.map((item) => item.scores[modelScale].rmse))
@@ -194,19 +192,19 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
             <div className="validation-status">
               <span className="validation-status-icon"><ShieldCheck size={17} aria-hidden="true" /></span>
               <div>
-                <strong>Walk-forward temporal</strong>
-                <span>La evaluación avanza periodo a periodo.</span>
+                <strong>Bloque temporal fijo</strong>
+                <span>Modelo fijo; cada día utiliza la historia real hasta ayer.</span>
               </div>
             </div>
             <ol className="validation-steps">
               <li><span>1</span><p>Entrenar con el historial disponible.</p></li>
               <li><span>2</span><p>Pronosticar el siguiente bloque temporal.</p></li>
               <li><span>3</span><p>Comparar contra el dato observado.</p></li>
-              <li><span>4</span><p>Desplazar la ventana y repetir.</p></li>
+              <li><span>4</span><p>Evaluar 121 días por comuna; excluir el 31 de diciembre por faltante.</p></li>
             </ol>
             <div className="validation-note">
               <Info size={15} aria-hidden="true" />
-              <p>La evaluación real debe reportar el periodo de prueba, cantidad de observaciones y dispersión del error.</p>
+              <p>Periodo ya explorado, no prueba independiente. Los modelos semanal y mensual aún no están implementados en el código principal.</p>
             </div>
           </div>
         </article>

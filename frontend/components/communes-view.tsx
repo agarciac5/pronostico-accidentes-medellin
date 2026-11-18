@@ -19,7 +19,7 @@ import {
 } from "@/components/dashboard-shared"
 import type { CommuneMetric } from "@/lib/mobility-data"
 
-type SortKey = "name" | "forecast" | "rate" | "mae"
+type SortKey = "name" | "forecast" | "mae"
 type SortDirection = "asc" | "desc"
 
 type CommunesViewProps = {
@@ -81,21 +81,15 @@ export function CommunesView({ rows, periodLabel }: CommunesViewProps) {
     const headers = [
       "Comuna",
       "Pronóstico",
-      "Intervalo inferior 80%",
-      "Intervalo superior 80%",
       "Observado",
       "MAE",
-      "Accidentes por 100.000 habitantes",
-      "Riesgo",
+      "Intensidad relativa",
     ]
     const values = sortedRows.map((row) => [
       row.name,
       row.forecast,
-      row.intervalLow,
-      row.intervalHigh,
       row.observed,
       row.mae,
-      row.rate,
       row.risk,
     ])
     const escapeCsv = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`
@@ -120,7 +114,7 @@ export function CommunesView({ rows, periodLabel }: CommunesViewProps) {
   return (
     <div className="view-stack">
       <DataNotice>
-        Consulta estimaciones, intervalos y métricas de error para el periodo seleccionado.
+        Consulta predicciones diarias retrospectivas y observados reales. MAE calculado en toda la validación sep–dic 2024.
       </DataNotice>
 
       <section className="surface-card table-card" aria-labelledby="commune-table-title">
@@ -157,7 +151,7 @@ export function CommunesView({ rows, periodLabel }: CommunesViewProps) {
               </span>
             </label>
             <label className="table-select-field" htmlFor="risk-filter">
-              <span>Nivel de riesgo</span>
+              <span>Intensidad relativa</span>
               <select
                 id="risk-filter"
                 value={riskFilter}
@@ -196,12 +190,10 @@ export function CommunesView({ rows, periodLabel }: CommunesViewProps) {
                   <tr>
                     <SortableHeader label="Comuna" sortKey="name" activeKey={sortKey} direction={sortDirection} onSort={toggleSort} />
                     <SortableHeader label="Pronóstico" sortKey="forecast" activeKey={sortKey} direction={sortDirection} onSort={toggleSort} />
-                    <th scope="col">Intervalo 80%</th>
                     <th scope="col">Observado</th>
                     <SortableHeader label="MAE" sortKey="mae" activeKey={sortKey} direction={sortDirection} onSort={toggleSort} />
-                    <SortableHeader label="Por 100.000 hab." sortKey="rate" activeKey={sortKey} direction={sortDirection} onSort={toggleSort} />
-                    <th scope="col">Riesgo</th>
-                    <th scope="col">Tendencia</th>
+                    <th scope="col">Intensidad</th>
+                    <th scope="col">Últimos 7 días observados</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -211,11 +203,9 @@ export function CommunesView({ rows, periodLabel }: CommunesViewProps) {
                         <span className="commune-number">{String(row.id).padStart(2, "0")}</span>
                         <span>{row.name}</span>
                       </th>
-                      <td className="numeric-cell numeric-cell--strong">{formatCount(row.forecast)}</td>
-                      <td className="interval-cell">{formatCount(row.intervalLow)}–{formatCount(row.intervalHigh)}</td>
+                      <td className="numeric-cell numeric-cell--strong">{formatDecimal(row.forecast)}</td>
                       <td className="numeric-cell">{formatCount(row.observed)}</td>
                       <td className="numeric-cell">{formatDecimal(row.mae)}</td>
-                      <td className="numeric-cell">{formatDecimal(row.rate)}</td>
                       <td><RiskBadge level={row.risk} /></td>
                       <td><SparkBars values={row.trend} label={`Tendencia reciente de ${row.name}`} /></td>
                     </tr>
@@ -255,14 +245,14 @@ export function CommunesView({ rows, periodLabel }: CommunesViewProps) {
           <div className="table-empty-state">
             <span className="empty-state-icon"><Search size={20} aria-hidden="true" /></span>
             <h3>No encontramos comunas</h3>
-            <p>Prueba otro nombre o cambia el nivel de riesgo seleccionado.</p>
+            <p>Prueba otro nombre o cambia el nivel de intensidad seleccionado.</p>
             <button className="secondary-button" type="button" onClick={resetFilters}>Restablecer filtros</button>
           </div>
         )}
       </section>
 
       <p className="table-footnote">
-        El MAE se expresa en accidentes por periodo; la tasa está normalizada por habitantes y no es comparable sin considerar la duración del periodo.
+        El MAE resume 121 días evaluados por comuna. Intensidad: tercios del máximo pronosticado entre las 16 comunas; no mide riesgo individual.
       </p>
     </div>
   )

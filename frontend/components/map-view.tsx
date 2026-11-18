@@ -18,7 +18,6 @@ import {
 } from "@/components/dashboard-shared"
 import {
   getRiskLevel,
-  getScaleFactor,
   type CommuneMetric,
   type RiskLevel,
   type Scale,
@@ -70,7 +69,7 @@ export function MapView({
     ? viewMode === "forecast" ? activeMetric.forecast : activeMetric.observed
     : 0
   const activeRisk = activeMetric
-    ? getRiskLevel(viewMode === "forecast" ? activeMetric.monthlyEquivalent : activeMetric.observed / getScaleFactor(scale))
+    ? getRisk(activeMetric)
     : "Bajo"
   const rankedRows = [...rows].sort((first, second) => {
     const firstValue = viewMode === "forecast" ? first.forecast : first.observed
@@ -91,7 +90,7 @@ export function MapView({
   function getRisk(row: CommuneMetric): RiskLevel {
     return viewMode === "forecast"
       ? row.risk
-      : getRiskLevel(row.observed / getScaleFactor(scale))
+      : getRiskLevel(row.observed, rows.map((item) => item.observed))
   }
 
   return (
@@ -136,7 +135,7 @@ export function MapView({
                 height={500}
                 projection="geoMercator"
                 projectionConfig={{ center: [-75.5785, 6.2442], scale: 164000 }}
-                aria-label="Comunas de Medellín coloreadas por nivel de riesgo"
+                aria-label="Comunas de Medellín coloreadas por intensidad relativa"
               >
                 <Geographies geography={mapSource}>
                   {({ geographies }) =>
@@ -155,7 +154,7 @@ export function MapView({
                           role="button"
                           tabIndex={0}
                           aria-pressed={selected}
-                          aria-label={`${properties.nombre}, riesgo ${risk}${row ? `, ${formatCount(viewMode === "forecast" ? row.forecast : row.observed)} accidentes` : ""}`}
+                          aria-label={`${properties.nombre}, intensidad ${risk}${row ? `, ${formatCount(viewMode === "forecast" ? row.forecast : row.observed)} accidentes` : ""}`}
                           onMouseEnter={() => setHoveredId(id)}
                           onMouseLeave={() => setHoveredId(null)}
                           onFocus={() => setHoveredId(id)}
@@ -204,7 +203,7 @@ export function MapView({
             </figcaption>
           </figure>
 
-          <div className="map-legend" aria-label="Leyenda de niveles de riesgo">
+          <div className="map-legend" aria-label="Leyenda de intensidad relativa">
             <span className="map-legend-title">Intensidad relativa</span>
             <span><i className="map-swatch map-swatch--low" /> Bajo</span>
             <span><i className="map-swatch map-swatch--medium" /> Medio</span>
@@ -229,16 +228,13 @@ export function MapView({
 
           <div className="map-detail-primary">
             <span>{viewMode === "forecast" ? "Accidentes pronosticados" : "Accidentes observados"}</span>
-            <strong>{activeMetric ? formatCount(activeValue) : "—"}</strong>
-            {viewMode === "forecast" && activeMetric ? (
-              <small>Rango de referencia: {formatCount(activeMetric.intervalLow)}–{formatCount(activeMetric.intervalHigh)}</small>
-            ) : null}
+            <strong>{activeMetric ? formatDecimal(activeValue) : "—"}</strong>
           </div>
 
           <div className="map-detail-stats">
             <div>
-              <span>Por 100.000 hab.</span>
-              <strong>{activeMetric ? formatDecimal(activeMetric.rate) : "—"}</strong>
+              <span>MAE diario · sep–dic 2024</span>
+              <strong>{activeMetric ? formatDecimal(activeMetric.mae) : "—"}</strong>
             </div>
             <div>
               <span>Posición relativa</span>
@@ -248,7 +244,7 @@ export function MapView({
 
           <div className="map-detail-note">
             <Info size={15} aria-hidden="true" />
-            <p>El color agrupa valores por nivel relativo; la tasa se calcula sobre la población de cada comuna.</p>
+            <p>Colores: tercios del máximo mostrado. Representan concentración de accidentes, no riesgo individual.</p>
           </div>
         </aside>
       </section>
