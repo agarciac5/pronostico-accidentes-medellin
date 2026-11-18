@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+import tempfile
 
 #rutas del proyecto.
 BACKEND = Path(__file__).resolve().parents[1]
@@ -12,6 +14,10 @@ from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 
 # Configurar Spark para trabajar localmente con tablas Delta.
+RUTA_IVY = Path(os.environ.get(
+    "SPARK_IVY_DIR", Path(tempfile.gettempdir()) / "pi-datos" / "ivy"
+)).resolve()
+
 builder = (
     SparkSession.builder
     .master("local[2]")
@@ -24,7 +30,7 @@ builder = (
         "spark.sql.catalog.spark_catalog",
         "org.apache.spark.sql.delta.catalog.DeltaCatalog",
     )
-    .config("spark.jars.ivy", "D:/Temporales/pi-datos/ivy")
+    .config("spark.jars.ivy", str(RUTA_IVY))
     .config("spark.sql.shuffle.partitions", "4")
 )
 

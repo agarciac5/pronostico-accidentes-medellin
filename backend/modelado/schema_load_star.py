@@ -1,18 +1,18 @@
-"""
-Transforma los datos residentes en archivos parquet debidamente procesados luego de Medallion al esquema estrella (dw.*).
+"""Construye el Data Mart urbano en archivos Delta con PySpark.
 
-El proceso es ELT: los datos ya están en PostgreSQL, así que cada paso es un
-INSERT ... SELECT que lee de oltp.* y escribe en dw.*.
-
-Uso: python labs/01-modelado/load_star.py
-
-Antes de ejecutarlo debes:
-  1. Completar los TODO de sql/star_schema.sql
-  2. Completar los TODO de este archivo (SQL_DIM_*, SQL_FACT)
-Al final se ejecuta verify(), que valida tu carga. No lo modifiques.
+Desde la raíz: python backend/modelado/schema_load_star.py
+Entrada: backend/data/interim/incidentes_urbanos.parquet.
+Salida: backend/data/datamart/datamart_delta_urbanos/.
+Conserva la llave original y valida claves, referencias y conteos.
+La carga inserta llaves nuevas; no actualiza registros existentes.
+Requisitos y orden de ejecución: docs/EJECUCION_MODELO_revision.md.
 """
 
 # Esta línea descarga y conecta automáticamente los archivos .jar de Delta Lake con Java
+
+from pathlib import Path
+import os
+import tempfile
 
 from delta import configure_spark_with_delta_pip
 from delta.tables import DeltaTable
@@ -21,6 +21,10 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import IntegerType
 
 # Configura el builder de Spark con las extensiones de Delta
+RUTA_IVY = Path(os.environ.get(
+    "SPARK_IVY_DIR", Path(tempfile.gettempdir()) / "pi-datos" / "ivy"
+)).resolve()
+
 builder = (
     SparkSession.builder
     .master("local[2]")
@@ -30,7 +34,7 @@ builder = (
         "spark.sql.catalog.spark_catalog",
         "org.apache.spark.sql.delta.catalog.DeltaCatalog",
     )
-    .config("spark.jars.ivy", "D:/Temporales/pi-datos/ivy")
+    .config("spark.jars.ivy", str(RUTA_IVY))
     .config("spark.sql.shuffle.partitions", "4")
 )
 

@@ -26,3 +26,15 @@ env/
 *.pkl
 
 # Datos locales
+/apoyo/
+
+# Documentación y experimentos locales
+/AGENTS.md
+/agents.md
+/Glosario.md
+/ProcesosIA/
+/data/
+
+# Salidas locales regenerables del modelado
+/backend/data/datamart/datamart_delta_urbanos/
+/backend/data/processed/tabla_gradient_diaria/
