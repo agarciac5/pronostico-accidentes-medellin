@@ -18,23 +18,23 @@ const processSteps = [
   },
   {
     title: "Modelado",
-    description: "Comparar persistencia, promedio estacional y Gradient Boosting, con y sin población.",
+    description: "Gradient Boosting con comuna, calendario, festivos, rezagos y promedio de siete días; referencias del mismo día anterior semana y promedio reciente.",
   },
   {
     title: "Evaluación",
-    description: "Medir MAE y RMSE con validación temporal de ventana progresiva.",
+    description: "Entrenar jul 2022–ago 2024 y evaluar sep–dic 2024: MAE, RMSE y sesgo. Modelo fijo, predicción diaria de un paso.",
   },
   {
     title: "Despliegue",
-    description: "Publicar estimaciones agregadas y rangos para orientar la planeación de seguridad vial.",
+    description: "Consultar localmente resultados agregados exportados del modelo principal. Sin intervalos de incertidumbre ni pronósticos actuales.",
   },
 ]
 
 const limitations = [
-  "La cobertura temporal y geográfica debe ser consistente para permitir comparaciones válidas.",
+  "Los 31 de diciembre de 2022, 2023 y 2024 tienen huecos en la fuente: no se interpretan como cero real. El 31 de diciembre de 2024 no se evalúa.",
   "La agregación por comuna puede ocultar diferencias entre vías, horarios y tipos de usuario vial.",
   "La asociación histórica no demuestra causalidad ni permite inferir el riesgo de una persona.",
-  "Una evaluación reproducible requiere documentar faltantes, cambios de cobertura y periodos de prueba.",
+  "Septiembre–diciembre de 2024 ya fue explorado: no es una prueba independiente. Predicciones diarias, no siete días simultáneos. Sin intervalos evaluados.",
 ]
 
 const contributors = [
@@ -65,7 +65,7 @@ export function MethodologyView() {
         <article className="surface-card reference-period-card">
           <span className="eyebrow-label">VENTANA DE REFERENCIA</span>
           <strong>ene 2021 <i aria-hidden="true">→</i> ago 2025</strong>
-          <p>Ventana histórica de referencia para la evaluación temporal.</p>
+          <p>Datos preparados: ene 2021–ago 2025. Entrenamiento: jul 2022–ago 2024. Validación mostrada: sep–dic 2024.</p>
           <span className="period-status"><span /> Periodo de análisis</span>
         </article>
       </section>
@@ -93,7 +93,7 @@ export function MethodologyView() {
             <div>
               <h3>Población por comuna</h3>
               <p>Proyecciones de Medellín / DANE</p>
-              <small>Denominador requerido para expresar tasas por cada 100.000 habitantes.</small>
+              <small>Disponible como contexto; no se usa como predictor ni para tasas en esta versión del tablero.</small>
               <span className="source-tag">Fuente de referencia</span>
             </div>
           </article>

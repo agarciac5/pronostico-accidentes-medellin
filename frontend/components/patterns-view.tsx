@@ -19,6 +19,8 @@ import {
 import { DataNotice, PanelHeading } from "@/components/dashboard-shared"
 import {
   monthlySeasonality,
+  peak,
+  metadata,
   timeHeatmap,
   timeSlots,
   yearlyTrend,
@@ -65,7 +67,7 @@ export function PatternsView({ periodLabel }: { periodLabel: string }) {
                     <tr key={row.day}>
                       <th scope="row">{row.day}</th>
                       {row.values.map((value, index) => {
-                        const colorIndex = Math.min(heatColors.length - 1, Math.floor(value / 5))
+                        const colorIndex = Math.min(heatColors.length - 1, Math.floor(value / peak.value * (heatColors.length - 1)))
                         return (
                           <td key={`${row.day}-${timeSlots[index]}`}>
                             <span
@@ -95,16 +97,16 @@ export function PatternsView({ periodLabel }: { periodLabel: string }) {
         <aside className="pattern-insight-card">
           <div className="pattern-insight-icon"><Activity size={19} aria-hidden="true" /></div>
           <span className="pattern-insight-overline">LECTURA DEL PATRÓN</span>
-          <h2>Viernes por la noche</h2>
+          <h2>{peak.day} · {peak.slot}</h2>
           <p>Es la franja con mayor intensidad en el periodo seleccionado.</p>
           <div className="pattern-insight-value">
-            <strong>24</strong>
+            <strong>{peak.value.toLocaleString("es-CO")}</strong>
             <span>accidentes</span>
           </div>
           <div className="pattern-insight-divider" />
           <div className="pattern-insight-secondary">
             <Clock3 size={15} aria-hidden="true" />
-            <span>La tarde del sábado también presenta una concentración elevada.</span>
+            <span>{metadata.incidentes_patrones.toLocaleString("es-CO")} incidentes con víctimas en las 16 comunas.</span>
           </div>
           <div className="pattern-insight-footnote">
             <Info size={14} aria-hidden="true" />
@@ -118,7 +120,7 @@ export function PatternsView({ periodLabel }: { periodLabel: string }) {
           <div className="surface-card-header">
             <PanelHeading
               title="Accidentes por mes"
-              description="Promedio mensual de enero a diciembre"
+              description="Promedio de totales registrados por mes · 2021–ago 2025"
               action={<span className="quiet-count">Estacionalidad</span>}
             />
           </div>
@@ -166,7 +168,7 @@ export function PatternsView({ periodLabel }: { periodLabel: string }) {
                 </LineChart>
               </ChartContainer>
             </div>
-            <p className="chart-footnote">2025 contempla enero–agosto en la serie original de referencia.</p>
+            <p className="chart-footnote">2025 incluye solo enero–agosto: no comparar directamente con años completos. Los totales son registros, no garantía de cobertura completa.</p>
           </div>
         </article>
       </section>

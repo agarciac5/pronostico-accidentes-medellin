@@ -9,7 +9,6 @@ import {
   MapPinned,
 } from "lucide-react"
 import {
-  Area,
   CartesianGrid,
   Line,
   ComposedChart,
@@ -40,7 +39,6 @@ import {
 const trendConfig = {
   observed: { label: "Observado", color: "#68727a" },
   forecast: { label: "Pronosticado", color: "#46515a" },
-  intervalRange: { label: "Intervalo de confianza", color: "#dce2e7" },
 } satisfies ChartConfig
 
 type SummaryViewProps = {
@@ -69,18 +67,18 @@ export function SummaryView({
   const trendData = getTrendSeries(scale, periodIndex, selectedCommuneId)
   const maximumForecast = Math.max(...rows.map((row) => row.forecast), 1)
   const valueFormatter = selectedCommuneId ? formatDecimal : formatCount
-  const scopeLabel = selectedCommuneId ? selectedCommuneName : "Medellín"
+  const scopeLabel = selectedCommuneId ? selectedCommuneName : "las 16 comunas urbanas"
 
   return (
     <div className="view-stack">
       <DataNotice>
-        Explora el pronóstico agregado por comuna y periodo para identificar concentraciones de riesgo.
+        Explora el pronóstico agregado por comuna y periodo para identificar concentraciones. Evaluación retrospectiva diaria de septiembre–diciembre de 2024; no es un pronóstico actual.
       </DataNotice>
 
       <section className="metric-grid" aria-label="Indicadores principales">
         <MetricCard
           title="Accidentes pronosticados"
-          value={formatCount(totalForecast)}
+          value={formatDecimal(totalForecast)}
           detail={`${periodLabel} · ${selectedCommuneId ? selectedCommuneName : "todas las comunas"}`}
           icon={CarFront}
           tone="blue"
@@ -94,19 +92,19 @@ export function SummaryView({
           valueClassName="metric-value--name"
         />
         <article className="metric-card">
-          <div className={`metric-icon ${changePercent >= 0 ? "metric-icon--red" : "metric-icon--teal"}`} aria-hidden="true">
-            {changePercent >= 0 ? <ArrowUpRight size={20} strokeWidth={2.4} /> : <ArrowDownRight size={20} strokeWidth={2.4} />}
+          <div className={`metric-icon ${(changePercent ?? 0) >= 0 ? "metric-icon--red" : "metric-icon--teal"}`} aria-hidden="true">
+            {(changePercent ?? 0) >= 0 ? <ArrowUpRight size={20} strokeWidth={2.4} /> : <ArrowDownRight size={20} strokeWidth={2.4} />}
           </div>
-          <p className="metric-title">Cambio vs. periodo anterior</p>
-          <p className={`metric-value ${changePercent >= 0 ? "metric-value--red" : "metric-value--green"}`}>
-            {changePercent > 0 ? "+" : ""}{formatDecimal(changePercent)}%
+          <p className="metric-title">Cambio vs. mismo día de la semana anterior</p>
+          <p className={`metric-value ${(changePercent ?? 0) >= 0 ? "metric-value--red" : "metric-value--green"}`}>
+            {(changePercent ?? 0) > 0 ? "+" : ""}{changePercent == null ? "Sin referencia" : `${formatDecimal(changePercent)}%`}
           </p>
           <p className="metric-detail">Accidentes con víctimas · {periodLabel}</p>
         </article>
         <MetricCard
           title="MAE promedio por comuna"
           value={formatDecimal(averageMae)}
-          detail={`${scale} · menor valor indica menor error`}
+          detail={"Validación completa sep–dic 2024 · no solo el día seleccionado"}
           icon={ChartNoAxesCombined}
           tone="violet"
         />
@@ -117,13 +115,11 @@ export function SummaryView({
           <div className="surface-card-header chart-card-header">
             <PanelHeading
               title="Tendencia de accidentes con víctimas"
-              description={`Histórico reciente y pronóstico ${scale} para ${scopeLabel}`}
-              action={<span className="confidence-tag"><span aria-hidden="true" /> IC 80%</span>}
+              description={`Histórico reciente y pronóstico diario para ${scopeLabel}`}
             />
             <div className="chart-legend" aria-label="Leyenda de la gráfica">
               <span><i className="legend-line legend-line--observed" /> Observado</span>
               <span><i className="legend-line legend-line--forecast" /> Pronosticado</span>
-              <span><i className="legend-band" /> Intervalo 80%</span>
             </div>
           </div>
           <div className="surface-card-content chart-card-content">
@@ -145,25 +141,6 @@ export function SummaryView({
                   width={42}
                 />
                 <ChartTooltip content={<TrendTooltip valueFormatter={valueFormatter} />} />
-                <Area
-                  type="monotone"
-                  dataKey="lowerBase"
-                  stackId="interval"
-                  stroke="none"
-                  fill="transparent"
-                  isAnimationActive={false}
-                  legendType="none"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="intervalRange"
-                  stackId="interval"
-                  stroke="none"
-                  fill="var(--color-intervalRange)"
-                  fillOpacity={0.88}
-                  isAnimationActive={false}
-                  legendType="none"
-                />
                 <Line
                   type="monotone"
                   dataKey="observed"
@@ -191,7 +168,7 @@ export function SummaryView({
             </ChartContainer>
             <div className="chart-footnote">
               <Clock3 size={14} aria-hidden="true" />
-              <span>El sombreado representa el intervalo estimado; no es una garantía de resultado.</span>
+              <span>Cada predicción usa información hasta el día anterior. Las líneas no son un pronóstico conjunto de varios días. No se han estimado intervalos.</span>
             </div>
           </div>
         </article>
@@ -246,7 +223,7 @@ export function SummaryView({
       <div className="summary-insight" role="note">
         <span className="summary-insight-icon" aria-hidden="true"><Clock3 size={17} /></span>
         <p>
-          <strong>Lectura del pronóstico.</strong> El modelo tiende a asignar mayor probabilidad en comunas con más siniestros históricos. La estimación no implica causalidad ni reemplaza la evaluación de seguridad vial.
+          <strong>Lectura del pronóstico.</strong> El modelo estima cantidades de accidentes con víctimas, no probabilidades ni personas. La estimación no implica causalidad ni reemplaza la evaluación de seguridad vial.
         </p>
       </div>
     </div>
@@ -269,22 +246,14 @@ function TrendTooltip({
   const point = payload.find((item) => item.payload)?.payload
   if (!point) return null
 
-  const intervalUpper =
-    point.lowerBase != null && point.intervalRange != null
-      ? point.lowerBase + point.intervalRange
-      : null
-
   return (
     <div className="chart-tooltip">
       <strong>{label ?? point.period}</strong>
-      {!point.forecastPeriod && point.observed != null ? (
+      {point.observed != null ? (
         <span><i className="tooltip-dot tooltip-dot--observed" /> Observado <b>{valueFormatter(point.observed)}</b></span>
       ) : null}
       {point.forecastPeriod && point.forecast != null ? (
         <span><i className="tooltip-dot tooltip-dot--forecast" /> Pronosticado <b>{valueFormatter(point.forecast)}</b></span>
-      ) : null}
-      {point.forecastPeriod && point.lowerBase != null && intervalUpper != null ? (
-        <small>Intervalo 80%: {valueFormatter(point.lowerBase)}–{valueFormatter(intervalUpper)}</small>
       ) : null}
     </div>
   )
