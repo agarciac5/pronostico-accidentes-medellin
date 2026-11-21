@@ -10,6 +10,7 @@ export const modelOptions = (data.modelos as { id: ModelId; nombre: string }[]).
   return first.RMSE - second.RMSE || first.MAE - second.MAE
 })
 export const metadata = data.metadatos
+export const prioritization = data.priorizacion
 export const dates = [...new Set(data.predicciones.map((row) => row.fecha))].sort()
 export const periodOptions: Record<Scale, string[]> = { diaria: dates, semanal: [], mensual: [] }
 const names = ["Popular", "Santa Cruz", "Manrique", "Aranjuez", "Castilla", "Doce de Octubre", "Robledo", "Villa Hermosa", "Buenos Aires", "La Candelaria", "Laureles-Estadio", "La América", "San Javier", "El Poblado", "Guayabal", "Belén"]

@@ -31,6 +31,7 @@ import {
 import {
   getChangePercent,
   getTrendSeries,
+  prioritization,
   type CommuneMetric,
   type Scale,
   type TrendPoint,
@@ -71,6 +72,8 @@ export function SummaryView({
   const maximumForecast = Math.max(...rows.map((row) => row.forecast), 1)
   const valueFormatter = selectedCommuneId ? formatDecimal : formatCount
   const scopeLabel = selectedCommuneId ? selectedCommuneName : "las 16 comunas urbanas"
+  const priorityShare = prioritization.comparacion[model].porcentaje
+  const referenceShare = prioritization.comparacion.referencia_promedio.porcentaje
 
   return (
     <div className="view-stack">
@@ -107,7 +110,7 @@ export function SummaryView({
         <MetricCard
           title="¿Cuál es el error medio por comuna?"
           value={formatDecimal(averageMae)}
-          detail={"Validación completa sep–dic 2024 · no solo el día seleccionado"}
+          detail=""
           icon={ChartNoAxesCombined}
           tone="violet"
         />
@@ -226,6 +229,7 @@ export function SummaryView({
         <span className="summary-insight-icon" aria-hidden="true"><Clock3 size={17} /></span>
         <p>
           <strong>Lectura del pronóstico.</strong> El modelo estima cantidades de accidentes con víctimas, no probabilidades ni personas. La estimación no implica causalidad ni reemplaza la evaluación de seguridad vial.
+          {priorityShare != null && referenceShare != null && <> Ejemplo de priorización diaria entre las 16 comunas, septiembre–diciembre de 2024: las tres seleccionadas por el modelo concentraron el {formatDecimal(priorityShare)}% de los accidentes registrados, frente al {formatDecimal(referenceShare)}% con el promedio de los siete días anteriores.</>}
         </p>
       </div>
     </div>

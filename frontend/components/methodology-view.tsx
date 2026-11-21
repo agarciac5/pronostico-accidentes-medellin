@@ -10,7 +10,7 @@ const processSteps = [
   },
   {
     title: "Comprensión de los datos",
-    description: "El histórico muestra diferencias entre comunas y huecos de cobertura: el análisis distingue territorio y fechas sin información.",
+    description: "En el entrenamiento, La Candelaria registra 10,36 incidentes diarios en promedio y Santa Cruz 1,17. Estas diferencias respaldan considerar cada comuna.",
   },
   {
     title: "Preparación de los datos",
@@ -18,11 +18,11 @@ const processSteps = [
   },
   {
     title: "Modelado",
-    description: "Regresión de conteos con boosting: comuna para diferencias territoriales, calendario para patrones temporales e historia reciente como referencia.",
+    description: "Regresión de conteos con siete variables: comuna, día de semana, mes, festivo, accidentes de ayer, de hace siete días y promedio de siete días anteriores.",
   },
   {
     title: "Evaluación",
-    description: "Entrenar jul 2022–ago 2024 y evaluar sep–dic 2024: MAE, RMSE y sesgo. Modelo fijo, predicción diaria de un paso.",
+    description: "En dos bloques de enero–agosto de 2024, retirar comuna, día de semana, promedio reciente o festivos aumentó el error. La comparación del tablero corresponde a septiembre–diciembre. Evaluación temporal: entre el 8 de enero y el 28 de febrero de 2025, el modelo ponderado obtuvo un MAE de 1,69 y un RMSE de 2,28 accidentes por comuna y día, superando ambas referencias simples.",
   },
   {
     title: "Despliegue",
@@ -34,6 +34,8 @@ const limitations = [
   "Los 31 de diciembre de 2022, 2023 y 2024 tienen huecos en la fuente: no se interpretan como cero real. El 31 de diciembre de 2024 no se evalúa.",
   "Los registros sin comuna pueden reducir los conteos territoriales. La agregación oculta diferencias entre vías y horarios.",
   "La asociación histórica no demuestra causalidad ni permite inferir el riesgo de una persona.",
+  "Mes y conteos de ayer y de hace siete días tienen evidencia mixta. Conservamos las siete variables: retirar el mes no sostuvo su mejora en el periodo posterior.",
+  "Complejidad del modelo: en cuatro periodos de validación de 2024, la configuración actual de 7 hojas obtuvo el menor error promedio. Simplificarla empeoró los resultados; aumentar su complejidad mejoró el ajuste a datos conocidos, pero no la predicción en promedio.",
   "Septiembre–diciembre de 2024 ya fue explorado: no es una prueba independiente. Predicciones diarias, no siete días simultáneos. Sin intervalos evaluados.",
   "Se supone que los registros hasta ayer están disponibles al estimar el día siguiente; su retraso real de publicación no está verificado.",
 ]

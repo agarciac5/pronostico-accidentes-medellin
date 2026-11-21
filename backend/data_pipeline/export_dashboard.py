@@ -4,6 +4,7 @@ import json
 import runpy
 
 import pandas as pd
+from priorizacion import comparar_priorizacion
 
 RAIZ = Path(__file__).resolve().parents[2]
 
@@ -39,6 +40,7 @@ promedio_mes = meses.groupby(meses.index.month).mean()
 anios = detalle.groupby(detalle.fecha.dt.year).size()
 
 salida = {
+    "priorizacion": comparar_priorizacion(resultados, ejecucion["modelos"]),
     "modelos": ejecucion["modelos"],
     "predicciones": registros(resultados),
     "historico": registros(historico),
