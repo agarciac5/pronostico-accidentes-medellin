@@ -5,7 +5,9 @@ import holidays
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.base import clone
+from sklearn.ensemble import GradientBoostingRegressor, HistGradientBoostingRegressor
+from threadpoolctl import threadpool_limits
 
 BACKEND = Path(__file__).resolve().parents[1]
 RUTA_DATOS = BACKEND / "data" / "processed" / "tabla_gradient_diaria"
@@ -64,16 +66,12 @@ preparacion = ColumnTransformer([
     ("numeros", "passthrough", numericas),
 ])
 
-# Unir la preparación y el modelo.
-modelo = Pipeline([
-    ("preparacion", preparacion),
-    ("gradient", GradientBoostingRegressor(
-        n_estimators=100,
-        learning_rate=0.1,
-        max_depth=3,
-        random_state=42,
-    )),
-])
+# Comparar las tres configuraciones ya evaluadas, sin buscar parámetros nuevos.
+modelos = [
+    {"id": "prediccion", "nombre": "HistGradient sin ponderación"},
+    {"id": "prediccion_gradient", "nombre": "Gradient boosting"},
+    {"id": "prediccion_ponderada", "nombre": "HistGradient ponderado 180 días"},
+]
 # Separar las variables de entrada y el objetivo.
 X_train = entrenamiento[variables]
 y_train = entrenamiento["accidentes"]
@@ -81,15 +79,27 @@ y_train = entrenamiento["accidentes"]
 X_valid = validacion[variables]
 y_valid = validacion["accidentes"]
 
-# Entrenar únicamente con el periodo de entrenamiento.
-modelo.fit(X_train, y_train)
-
-# Predecir el periodo de validación.
-predicciones = modelo.predict(X_valid)
-
-# Organizar los resultados para compararlos.
 resultados = validacion[["fecha", "comuna_id", "accidentes"]].copy()
-resultados["prediccion"] = predicciones
+for opcion in modelos:
+    estimador = (
+        GradientBoostingRegressor(
+            n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42,
+        ) if opcion["id"] == "prediccion_gradient" else HistGradientBoostingRegressor(
+            max_iter=200, learning_rate=0.05, max_leaf_nodes=7,
+            min_samples_leaf=20, l2_regularization=1,
+            early_stopping=False, random_state=42,
+        )
+    )
+    modelo = Pipeline([("preparacion", clone(preparacion)), ("gradient", estimador)])
+    ajuste = {}
+    if opcion["id"] == "prediccion_ponderada":
+        edad = (pd.Timestamp("2024-08-31") - entrenamiento["fecha"]).dt.days
+        pesos = 2.0 ** (-edad / 180)
+        ajuste["gradient__sample_weight"] = pesos / pesos.mean()
+    with threadpool_limits(limits=2):
+        modelo.fit(X_train, y_train, **ajuste)
+        resultados[opcion["id"]] = modelo.predict(X_valid)
+
 resultados["referencia_semanal"] = validacion["accidentes_hace_7_dias"]
 resultados["referencia_promedio"] = validacion["promedio_7_dias"]
 
@@ -99,11 +109,11 @@ print("Predicciones negativas:", (resultados["prediccion"] < 0).sum())
 # Comparar el modelo con las dos referencias.
 metricas = []
 
-for nombre, columna in [
-    ("Gradient boosting", "prediccion"),
+metodos = [(opcion["nombre"], opcion["id"]) for opcion in modelos] + [
     ("Referencia semanal", "referencia_semanal"),
     ("Promedio últimos 7 días", "referencia_promedio"),
-]:
+]
+for nombre, columna in metodos:
     errores = resultados[columna] - resultados["accidentes"]
 
     metricas.append({
@@ -116,15 +126,11 @@ for nombre, columna in [
 print("\nResultados de validación de 2024:")
 print(pd.DataFrame(metricas).round(3).to_string(index=False))
 
-# Comparar los errores de los tres métodos dentro de cada comuna.
+# Comparar los errores de los modelos y referencias dentro de cada comuna.
 metricas_por_comuna = []
 
 for comuna, grupo in resultados.groupby("comuna_id"):
-    for nombre, columna in [
-        ("Gradient boosting", "prediccion"),
-        ("Referencia semanal", "referencia_semanal"),
-        ("Promedio últimos 7 días", "referencia_promedio"),
-    ]:
+    for nombre, columna in metodos:
         errores = grupo[columna] - grupo["accidentes"]
 
         metricas_por_comuna.append({

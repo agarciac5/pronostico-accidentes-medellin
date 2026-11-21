@@ -4,6 +4,7 @@ import json
 import runpy
 
 import pandas as pd
+from priorizacion import comparar_priorizacion
 
 RAIZ = Path(__file__).resolve().parents[2]
 
@@ -39,6 +40,8 @@ promedio_mes = meses.groupby(meses.index.month).mean()
 anios = detalle.groupby(detalle.fecha.dt.year).size()
 
 salida = {
+    "priorizacion": comparar_priorizacion(resultados, ejecucion["modelos"]),
+    "modelos": ejecucion["modelos"],
     "predicciones": registros(resultados),
     "historico": registros(historico),
     "metricas": ejecucion["metricas"],
@@ -47,7 +50,7 @@ salida = {
     "meses": promedio_mes.reindex(range(1, 13)).tolist(),
     "anios": [{"year": str(anio) + ("*" if anio == 2025 else ""), "accidents": int(n)} for anio, n in anios.items()],
     "metadatos": {
-        "modelo": "GradientBoostingRegressor",
+        "modelo": "HistGradientBoostingRegressor ponderado 180 días",
         "entrenamiento": "2022-07-01 a 2024-08-31",
         "validacion": "2024-09-01 a 2024-12-30 (31 de diciembre excluido por faltante)",
         "horizonte": "Un día; historia observada hasta el día anterior",

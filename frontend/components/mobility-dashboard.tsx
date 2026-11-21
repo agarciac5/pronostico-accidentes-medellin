@@ -16,6 +16,9 @@ import {
 import {
   getCommuneRows,
   periodOptions,
+  defaultModel,
+  modelOptions,
+  type ModelId,
   type Scale,
 } from "@/lib/mobility-data"
 import { CommunesView } from "@/components/communes-view"
@@ -86,6 +89,7 @@ const scaleOptions: { value: Scale; label: string }[] = [
 ]
 
 export function MobilityDashboard() {
+  const [selectedModel, setSelectedModel] = useState<ModelId>(defaultModel)
   const [activeSection, setActiveSection] = useState<SectionId>("summary")
   const [scale, setScale] = useState<Scale>("diaria")
   const [periodIndex, setPeriodIndex] = useState(0)
@@ -99,7 +103,7 @@ export function MobilityDashboard() {
   }, [])
 
   const page = navigation.find((item) => item.id === activeSection) ?? navigation[0]
-  const allRows = getCommuneRows(scale, periodIndex)
+  const allRows = getCommuneRows(scale, periodIndex, selectedModel)
   const selectedRow = allRows.find((row) => String(row.id) === selectedCommune)
   const visibleRows = selectedCommune === "all" ? allRows : allRows.filter((row) => String(row.id) === selectedCommune)
   const selectedCommuneName = selectedRow?.name ?? "Todas las comunas"
@@ -140,7 +144,7 @@ export function MobilityDashboard() {
           </span>
           <span className="brand-copy">
             <strong>Movilidad</strong>
-            <small>Medellín · Observatorio vial</small>
+            <small>Medellín</small>
           </span>
           <button
             className="sidebar-close icon-button"
@@ -190,7 +194,7 @@ export function MobilityDashboard() {
                 <span>OBSERVATORIO DE SEGURIDAD VIAL</span>
               </div>
               <h1>{page.title}</h1>
-              <p>{page.description}</p>
+              <p>{page.description}{!["patterns", "methodology"].includes(activeSection) && ` · ${modelOptions.find((model) => model.id === selectedModel)!.nombre}`}</p>
             </div>
           </div>
 
@@ -259,6 +263,7 @@ export function MobilityDashboard() {
             <DashboardSkeleton />
           ) : activeSection === "summary" ? (
             <SummaryView
+              model={selectedModel}
               rows={visibleRows}
               scale={scale}
               periodIndex={periodIndex}
@@ -279,7 +284,7 @@ export function MobilityDashboard() {
           ) : activeSection === "patterns" ? (
             <PatternsView periodLabel="2021–agosto 2025 · histórico completo" />
           ) : activeSection === "model" ? (
-            <ModelView rows={allRows} scale={scale} selectedCommuneName="Todas las comunas" />
+            <ModelView rows={allRows} scale={scale} selectedCommuneName="Todas las comunas" selectedModel={selectedModel} onModelChange={setSelectedModel} />
           ) : (
             <MethodologyView />
           )}

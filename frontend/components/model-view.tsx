@@ -21,6 +21,9 @@ import {
 } from "@/components/dashboard-shared"
 import {
   modelScores,
+  modelOptions,
+  defaultModel,
+  type ModelId,
   type CommuneMetric,
   type Scale,
 } from "@/lib/mobility-data"
@@ -36,16 +39,20 @@ const scaleLabels: Record<Scale, string> = {
 }
 
 type ModelViewProps = {
+  selectedModel: ModelId
+  onModelChange: (model: ModelId) => void
   rows: CommuneMetric[]
   scale: Scale
   selectedCommuneName: string
 }
 
-export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) {
+export function ModelView({ rows, scale, selectedCommuneName, selectedModel, onModelChange }: ModelViewProps) {
   const scoresForScale = modelScores.map((model) => model.scores.diaria)
   const bestMae = Math.min(...scoresForScale.map((score) => score.mae))
   const bestRmse = Math.min(...scoresForScale.map((score) => score.rmse))
   const bestModel = modelScores.find((model) => model.scores.diaria.mae === bestMae)
+  const bestRmseModel = modelScores.find((model) => model.scores.diaria.rmse === bestRmse)
+  const selectedName = modelOptions.find((model) => model.id === selectedModel)!.nombre
   const errorRows = [...rows].sort((first, second) => first.mae - second.mae)
   const errorChartData = errorRows.map((row) => ({
     name: row.name,
@@ -71,16 +78,16 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
           <span className="model-summary-icon model-summary-icon--blue"><Check size={20} strokeWidth={2.4} aria-hidden="true" /></span>
           <div>
             <span>Menor MAE · {scaleLabels[scale].toLowerCase()}</span>
-            <strong>{formatDecimal(bestMae)} <small>accidentes</small></strong>
+            <strong>{formatDecimal(bestMae, 3)} <small>accidentes</small></strong>
             <small>{bestModel?.name ?? "Modelo"}</small>
           </div>
         </article>
         <article className="model-summary-card">
           <span className="model-summary-icon model-summary-icon--orange"><Info size={20} strokeWidth={2.4} aria-hidden="true" /></span>
           <div>
-            <span>RMSE del mejor modelo</span>
-            <strong>{formatDecimal(bestRmse)} <small>accidentes</small></strong>
-            <small>La escala cambia la magnitud del error.</small>
+            <span>Menor RMSE · {scaleLabels[scale].toLowerCase()}</span>
+            <strong>{formatDecimal(bestRmse, 3)} <small>accidentes</small></strong>
+            <small>{bestRmseModel?.name}</small>
           </div>
         </article>
       </section>
@@ -88,9 +95,16 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
       <article className="surface-card model-table-card">
         <div className="surface-card-header">
           <PanelHeading
-            title="Comparación de modelos"
-            description="Error medio absoluto (MAE) y raíz del error cuadrático medio (RMSE)"
-            action={<span className="quiet-count">Escala temporal</span>}
+            title="¿Qué modelo tiene menor error?"
+            description="De menor a mayor RMSE; MAE como desempate. Menor error es mejor."
+            action={
+              <label className="header-select">
+                <span>Modelo del tablero</span>
+                <select aria-label="Modelo del tablero" value={selectedModel} onChange={(event) => onModelChange(event.target.value as ModelId)}>
+                  {modelOptions.map((model) => <option key={model.id} value={model.id}>{model.nombre}{model.id === defaultModel ? " · Principal" : ""}</option>)}
+                </select>
+              </label>
+            }
           />
         </div>
         <div className="model-table-scroll">
@@ -112,7 +126,7 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
               {modelScores.map((model) => (
                 <tr key={model.name}>
                   <th scope="row" className="model-name-cell">
-                    <strong>{model.name}</strong>
+                    <strong>{model.name}{model.name === selectedName ? " · Activo" : ""}</strong>
                     <small>{model.description}</small>
                   </th>
                   {(["diaria"] as const).flatMap((modelScale) => {
@@ -122,10 +136,10 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
 
                     return [
                       <td className={score.mae === bestScaleMae ? "score-cell score-cell--best" : "score-cell"} key={`${model.name}-${modelScale}-mae`}>
-                        {formatDecimal(score.mae)}
+                        {formatDecimal(score.mae, 3)}
                       </td>,
                       <td className={score.rmse === bestScaleRmse ? "score-cell score-cell--best" : "score-cell"} key={`${model.name}-${modelScale}-rmse`}>
-                        {formatDecimal(score.rmse)}
+                        {formatDecimal(score.rmse, 3)}
                       </td>,
                     ]
                   })}
@@ -136,7 +150,7 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
         </div>
         <div className="table-footnote model-table-footnote">
           <span className="best-cell-key" aria-hidden="true" />
-          <span>La celda resaltada marca el menor valor de error en cada escala.</span>
+          <span>Menor error resaltado. El selector actualiza estimaciones y errores en todo el tablero. Principal: HistGradient ponderado 180 días, con el menor MAE y RMSE en el periodo mostrado (septiembre–diciembre de 2024).</span>
         </div>
       </article>
 
@@ -144,8 +158,8 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
         <article className="surface-card">
           <div className="surface-card-header">
             <PanelHeading
-              title="Error por comuna"
-              description={`MAE · ${scaleLabels[scale].toLowerCase()} · ${selectedCommuneName}`}
+              title="¿Cuánto se equivoca el modelo en cada comuna?"
+              description={`MAE · ${selectedName} · ${selectedCommuneName}`}
               action={<span className="quiet-count">MAE · {scaleLabels[scale]}</span>}
             />
           </div>
@@ -184,7 +198,7 @@ export function ModelView({ rows, scale, selectedCommuneName }: ModelViewProps) 
         <article className="surface-card validation-card">
           <div className="surface-card-header">
             <PanelHeading
-              title="Validación temporal"
+              title="¿Cómo se evaluaron las estimaciones?"
               description="Esquema recomendado para evitar fuga de información"
             />
           </div>

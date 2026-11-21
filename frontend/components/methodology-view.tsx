@@ -6,35 +6,38 @@ import { DataNotice, PanelHeading } from "@/components/dashboard-shared"
 const processSteps = [
   {
     title: "Comprensión del negocio",
-    description: "Delimitar la pregunta: anticipar concentraciones para apoyar la planeación de seguridad vial.",
+    description: "Apoyar la revisión de comunas prioritarias según el volumen estimado y el cambio frente al histórico.",
   },
   {
     title: "Comprensión de los datos",
-    description: "Revisar cobertura temporal, campos, faltantes y definición de accidente con víctimas.",
+    description: "En el entrenamiento, La Candelaria registra 10,36 incidentes diarios en promedio y Santa Cruz 1,17. Estas diferencias respaldan considerar cada comuna.",
   },
   {
     title: "Preparación de los datos",
-    description: "Depurar registros, homologar comunas y agregar por día, semana y mes.",
+    description: "Conservar incidentes con comuna válida, incluso sin coordenadas. Los días sin cobertura quedan como faltantes, no como ceros.",
   },
   {
     title: "Modelado",
-    description: "Gradient Boosting con comuna, calendario, festivos, rezagos y promedio de siete días; referencias del mismo día anterior semana y promedio reciente.",
+    description: "Regresión de conteos con siete variables: comuna, día de semana, mes, festivo, accidentes de ayer, de hace siete días y promedio de siete días anteriores.",
   },
   {
     title: "Evaluación",
-    description: "Entrenar jul 2022–ago 2024 y evaluar sep–dic 2024: MAE, RMSE y sesgo. Modelo fijo, predicción diaria de un paso.",
+    description: "En dos bloques de enero–agosto de 2024, retirar comuna, día de semana, promedio reciente o festivos aumentó el error. La comparación del tablero corresponde a septiembre–diciembre. Evaluación temporal: entre el 8 de enero y el 28 de febrero de 2025, el modelo ponderado obtuvo un MAE de 1,69 y un RMSE de 2,28 accidentes por comuna y día, superando ambas referencias simples.",
   },
   {
     title: "Despliegue",
-    description: "Consultar localmente resultados agregados exportados del modelo principal. Sin intervalos de incertidumbre ni pronósticos actuales.",
+    description: "Un mismo flujo prepara datos, calcula antecedentes, entrena y exporta resultados al tablero. El selector permite comparar modelos.",
   },
 ]
 
 const limitations = [
   "Los 31 de diciembre de 2022, 2023 y 2024 tienen huecos en la fuente: no se interpretan como cero real. El 31 de diciembre de 2024 no se evalúa.",
-  "La agregación por comuna puede ocultar diferencias entre vías, horarios y tipos de usuario vial.",
+  "Los registros sin comuna pueden reducir los conteos territoriales. La agregación oculta diferencias entre vías y horarios.",
   "La asociación histórica no demuestra causalidad ni permite inferir el riesgo de una persona.",
+  "Mes y conteos de ayer y de hace siete días tienen evidencia mixta. Conservamos las siete variables: retirar el mes no sostuvo su mejora en el periodo posterior.",
+  "Complejidad del modelo: en cuatro periodos de validación de 2024, la configuración actual de 7 hojas obtuvo el menor error promedio. Simplificarla empeoró los resultados; aumentar su complejidad mejoró el ajuste a datos conocidos, pero no la predicción en promedio.",
   "Septiembre–diciembre de 2024 ya fue explorado: no es una prueba independiente. Predicciones diarias, no siete días simultáneos. Sin intervalos evaluados.",
+  "Se supone que los registros hasta ayer están disponibles al estimar el día siguiente; su retraso real de publicación no está verificado.",
 ]
 
 const contributors = [
@@ -56,9 +59,9 @@ export function MethodologyView() {
           <div className="method-card-icon method-card-icon--green"><BookOpen size={19} aria-hidden="true" /></div>
           <div>
             <span className="eyebrow-label">PROPÓSITO</span>
-            <h2>Pronosticar para orientar, no para señalar.</h2>
+            <h2>Orientar la revisión prioritaria de comunas.</h2>
             <p>
-              El análisis busca resumir tendencias agregadas de accidentes con víctimas y apoyar la conversación sobre prevención vial en Medellín. Los resultados no se usan para evaluar personas ni predecir eventos individuales.
+              Apoyo propuesto a la planeación de la Secretaría de Movilidad de Medellín: comparar las 16 comunas para revisar acciones de prevención y control. No asigna recursos automáticamente.
             </p>
           </div>
         </article>
@@ -84,7 +87,7 @@ export function MethodologyView() {
             <div>
               <h3>Accidentes con víctimas</h3>
               <p>Secretaría de Movilidad de Medellín / Mendeley Data</p>
-              <small>Variables de resultado: registros con persona herida o fallecida; agregación por comuna y periodo.</small>
+              <small>Estimamos el número de incidentes con heridos o fallecidos por comuna y día, no el número de personas. Horizonte actual: un día adelante.</small>
               <span className="source-tag">Fuente de referencia</span>
             </div>
           </article>

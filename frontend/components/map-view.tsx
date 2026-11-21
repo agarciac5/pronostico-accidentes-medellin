@@ -103,7 +103,7 @@ export function MapView({
         <article className="surface-card map-card">
           <div className="surface-card-header map-card-header">
             <PanelHeading
-              title="Concentración por comuna"
+              title={viewMode === "forecast" ? "¿Dónde se concentran los accidentes estimados?" : "¿Dónde se concentraron los accidentes de referencia?"}
               description={`${viewMode === "forecast" ? "Pronóstico" : "Histórico de referencia"} · ${periodLabel}`}
               action={
                 <div className="segmented-control" role="group" aria-label="Modo de visualización del mapa">

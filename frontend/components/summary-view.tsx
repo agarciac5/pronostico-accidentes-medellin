@@ -31,9 +31,11 @@ import {
 import {
   getChangePercent,
   getTrendSeries,
+  prioritization,
   type CommuneMetric,
   type Scale,
   type TrendPoint,
+  type ModelId,
 } from "@/lib/mobility-data"
 
 const trendConfig = {
@@ -42,6 +44,7 @@ const trendConfig = {
 } satisfies ChartConfig
 
 type SummaryViewProps = {
+  model: ModelId
   rows: CommuneMetric[]
   scale: Scale
   periodIndex: number
@@ -51,6 +54,7 @@ type SummaryViewProps = {
 }
 
 export function SummaryView({
+  model,
   rows,
   scale,
   periodIndex,
@@ -64,10 +68,12 @@ export function SummaryView({
     ? rows.reduce((total, row) => total + row.mae, 0) / rows.length
     : 0
   const changePercent = getChangePercent(rows, periodIndex)
-  const trendData = getTrendSeries(scale, periodIndex, selectedCommuneId)
+  const trendData = getTrendSeries(scale, periodIndex, selectedCommuneId, model)
   const maximumForecast = Math.max(...rows.map((row) => row.forecast), 1)
   const valueFormatter = selectedCommuneId ? formatDecimal : formatCount
   const scopeLabel = selectedCommuneId ? selectedCommuneName : "las 16 comunas urbanas"
+  const priorityShare = prioritization.comparacion[model].porcentaje
+  const referenceShare = prioritization.comparacion.referencia_promedio.porcentaje
 
   return (
     <div className="view-stack">
@@ -77,14 +83,14 @@ export function SummaryView({
 
       <section className="metric-grid" aria-label="Indicadores principales">
         <MetricCard
-          title="Accidentes pronosticados"
+          title="¿Cuántos accidentes se estiman?"
           value={formatDecimal(totalForecast)}
           detail={`${periodLabel} · ${selectedCommuneId ? selectedCommuneName : "todas las comunas"}`}
           icon={CarFront}
           tone="blue"
         />
         <MetricCard
-          title="Mayor concentración"
+          title="¿Dónde se estima la mayor cantidad?"
           value={topCommune?.name ?? "Sin datos"}
           detail={topCommune ? `${formatCount(topCommune.forecast)} ${topCommune.forecast === 1 ? "accidente estimado" : "accidentes estimados"}` : "Sin comunas para mostrar"}
           icon={MapPinned}
@@ -95,16 +101,16 @@ export function SummaryView({
           <div className={`metric-icon ${(changePercent ?? 0) >= 0 ? "metric-icon--red" : "metric-icon--teal"}`} aria-hidden="true">
             {(changePercent ?? 0) >= 0 ? <ArrowUpRight size={20} strokeWidth={2.4} /> : <ArrowDownRight size={20} strokeWidth={2.4} />}
           </div>
-          <p className="metric-title">Cambio vs. mismo día de la semana anterior</p>
+          <p className="metric-title">¿Cuánto cambia frente al mismo día de la semana anterior?</p>
           <p className={`metric-value ${(changePercent ?? 0) >= 0 ? "metric-value--red" : "metric-value--green"}`}>
             {(changePercent ?? 0) > 0 ? "+" : ""}{changePercent == null ? "Sin referencia" : `${formatDecimal(changePercent)}%`}
           </p>
           <p className="metric-detail">Accidentes con víctimas · {periodLabel}</p>
         </article>
         <MetricCard
-          title="MAE promedio por comuna"
+          title="¿Cuál es el error medio por comuna?"
           value={formatDecimal(averageMae)}
-          detail={"Validación completa sep–dic 2024 · no solo el día seleccionado"}
+          detail=""
           icon={ChartNoAxesCombined}
           tone="violet"
         />
@@ -113,10 +119,9 @@ export function SummaryView({
       <section className="overview-grid" aria-label="Pronóstico y comunas principales">
         <article className="surface-card chart-card">
           <div className="surface-card-header chart-card-header">
-            <PanelHeading
-              title="Tendencia de accidentes con víctimas"
-              description={`Histórico reciente y pronóstico diario para ${scopeLabel}`}
-            />
+            <div className="panel-heading">
+              <p style={{ fontSize: "18px" }}>Histórico reciente y pronóstico diario para {scopeLabel}</p>
+            </div>
             <div className="chart-legend" aria-label="Leyenda de la gráfica">
               <span><i className="legend-line legend-line--observed" /> Observado</span>
               <span><i className="legend-line legend-line--forecast" /> Pronosticado</span>
@@ -176,7 +181,7 @@ export function SummaryView({
         <article className="surface-card ranking-card">
           <div className="surface-card-header">
             <PanelHeading
-              title="Comunas con mayor pronóstico"
+              title="¿Qué comunas tienen mayor cantidad estimada?"
               description={`${periodLabel} · ${rows.length} ${rows.length === 1 ? "comuna" : "comunas"} en el filtro`}
               action={<span className="quiet-count">Top 5</span>}
             />
@@ -224,6 +229,7 @@ export function SummaryView({
         <span className="summary-insight-icon" aria-hidden="true"><Clock3 size={17} /></span>
         <p>
           <strong>Lectura del pronóstico.</strong> El modelo estima cantidades de accidentes con víctimas, no probabilidades ni personas. La estimación no implica causalidad ni reemplaza la evaluación de seguridad vial.
+          {priorityShare != null && referenceShare != null && <> Ejemplo de priorización diaria entre las 16 comunas, septiembre–diciembre de 2024: las tres seleccionadas por el modelo concentraron el {formatDecimal(priorityShare)}% de los accidentes registrados, frente al {formatDecimal(referenceShare)}% con el promedio de los siete días anteriores.</>}
         </p>
       </div>
     </div>

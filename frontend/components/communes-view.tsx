@@ -120,7 +120,7 @@ export function CommunesView({ rows, periodLabel }: CommunesViewProps) {
       <section className="surface-card table-card" aria-labelledby="commune-table-title">
         <div className="surface-card-header table-card-header">
           <PanelHeading
-            title="Pronóstico por comuna"
+            title="¿Cuántos accidentes se estiman en cada comuna?"
             titleId="commune-table-title"
             description={`${periodLabel} · estimación de accidentes con víctimas`}
             action={

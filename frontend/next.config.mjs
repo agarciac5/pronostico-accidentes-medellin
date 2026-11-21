@@ -11,6 +11,7 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  devIndicators: false,
   typescript: {
     ignoreBuildErrors: true,
   },
