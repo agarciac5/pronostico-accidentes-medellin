@@ -65,9 +65,11 @@ python backend/machinelearning/train_gradient.py
 ```
 
 La preparación escribe `backend/data/processed/tabla_gradient_diaria`.
-El entrenamiento imprime resultados: no guarda un modelo ni alimenta el
-dashboard. Usa GradientBoostingRegressor con 100 árboles, profundidad 3 y
-tasa 0,1; entrena julio de 2022–agosto de 2024 y evalúa septiembre–diciembre
+El entrenamiento imprime resultados y compara GradientBoostingRegressor con
+100 árboles, profundidad 3 y tasa 0,1 frente a HistGradient sin ponderación
+y ponderado a 180 días (principal del tablero). No guarda modelos entrenados; la exportación
+descrita en `DASHBOARD_revision.md` reutiliza estos resultados para el tablero.
+Entrena julio de 2022–agosto de 2024 y evalúa septiembre–diciembre
 de 2024. Son predicciones diarias con historia observada hasta el día anterior,
 no siete días simultáneos. Ese periodo ya fue explorado: no es prueba ciega.
 

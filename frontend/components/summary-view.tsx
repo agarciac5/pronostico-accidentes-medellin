@@ -34,6 +34,7 @@ import {
   type CommuneMetric,
   type Scale,
   type TrendPoint,
+  type ModelId,
 } from "@/lib/mobility-data"
 
 const trendConfig = {
@@ -42,6 +43,7 @@ const trendConfig = {
 } satisfies ChartConfig
 
 type SummaryViewProps = {
+  model: ModelId
   rows: CommuneMetric[]
   scale: Scale
   periodIndex: number
@@ -51,6 +53,7 @@ type SummaryViewProps = {
 }
 
 export function SummaryView({
+  model,
   rows,
   scale,
   periodIndex,
@@ -64,7 +67,7 @@ export function SummaryView({
     ? rows.reduce((total, row) => total + row.mae, 0) / rows.length
     : 0
   const changePercent = getChangePercent(rows, periodIndex)
-  const trendData = getTrendSeries(scale, periodIndex, selectedCommuneId)
+  const trendData = getTrendSeries(scale, periodIndex, selectedCommuneId, model)
   const maximumForecast = Math.max(...rows.map((row) => row.forecast), 1)
   const valueFormatter = selectedCommuneId ? formatDecimal : formatCount
   const scopeLabel = selectedCommuneId ? selectedCommuneName : "las 16 comunas urbanas"
