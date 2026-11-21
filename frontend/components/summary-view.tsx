@@ -80,14 +80,14 @@ export function SummaryView({
 
       <section className="metric-grid" aria-label="Indicadores principales">
         <MetricCard
-          title="Accidentes pronosticados"
+          title="¿Cuántos accidentes se estiman?"
           value={formatDecimal(totalForecast)}
           detail={`${periodLabel} · ${selectedCommuneId ? selectedCommuneName : "todas las comunas"}`}
           icon={CarFront}
           tone="blue"
         />
         <MetricCard
-          title="Mayor concentración"
+          title="¿Dónde se estima la mayor cantidad?"
           value={topCommune?.name ?? "Sin datos"}
           detail={topCommune ? `${formatCount(topCommune.forecast)} ${topCommune.forecast === 1 ? "accidente estimado" : "accidentes estimados"}` : "Sin comunas para mostrar"}
           icon={MapPinned}
@@ -98,14 +98,14 @@ export function SummaryView({
           <div className={`metric-icon ${(changePercent ?? 0) >= 0 ? "metric-icon--red" : "metric-icon--teal"}`} aria-hidden="true">
             {(changePercent ?? 0) >= 0 ? <ArrowUpRight size={20} strokeWidth={2.4} /> : <ArrowDownRight size={20} strokeWidth={2.4} />}
           </div>
-          <p className="metric-title">Cambio vs. mismo día de la semana anterior</p>
+          <p className="metric-title">¿Cuánto cambia frente al mismo día de la semana anterior?</p>
           <p className={`metric-value ${(changePercent ?? 0) >= 0 ? "metric-value--red" : "metric-value--green"}`}>
             {(changePercent ?? 0) > 0 ? "+" : ""}{changePercent == null ? "Sin referencia" : `${formatDecimal(changePercent)}%`}
           </p>
           <p className="metric-detail">Accidentes con víctimas · {periodLabel}</p>
         </article>
         <MetricCard
-          title="MAE promedio por comuna"
+          title="¿Cuál es el error medio por comuna?"
           value={formatDecimal(averageMae)}
           detail={"Validación completa sep–dic 2024 · no solo el día seleccionado"}
           icon={ChartNoAxesCombined}
@@ -116,10 +116,9 @@ export function SummaryView({
       <section className="overview-grid" aria-label="Pronóstico y comunas principales">
         <article className="surface-card chart-card">
           <div className="surface-card-header chart-card-header">
-            <PanelHeading
-              title="Tendencia de accidentes con víctimas"
-              description={`Histórico reciente y pronóstico diario para ${scopeLabel}`}
-            />
+            <div className="panel-heading">
+              <p style={{ fontSize: "18px" }}>Histórico reciente y pronóstico diario para {scopeLabel}</p>
+            </div>
             <div className="chart-legend" aria-label="Leyenda de la gráfica">
               <span><i className="legend-line legend-line--observed" /> Observado</span>
               <span><i className="legend-line legend-line--forecast" /> Pronosticado</span>
@@ -179,7 +178,7 @@ export function SummaryView({
         <article className="surface-card ranking-card">
           <div className="surface-card-header">
             <PanelHeading
-              title="Comunas con mayor pronóstico"
+              title="¿Qué comunas tienen mayor cantidad estimada?"
               description={`${periodLabel} · ${rows.length} ${rows.length === 1 ? "comuna" : "comunas"} en el filtro`}
               action={<span className="quiet-count">Top 5</span>}
             />

@@ -4,7 +4,11 @@ export type Scale = "diaria" | "semanal" | "mensual"
 export type RiskLevel = "Bajo" | "Medio" | "Alto"
 export type ModelId = "prediccion" | "prediccion_gradient" | "prediccion_ponderada"
 export const defaultModel: ModelId = "prediccion_ponderada"
-export const modelOptions = data.modelos as { id: ModelId; nombre: string }[]
+export const modelOptions = (data.modelos as { id: ModelId; nombre: string }[]).slice().sort((a, b) => {
+  const first = data.metricas.find((metric) => metric.modelo === a.nombre)!
+  const second = data.metricas.find((metric) => metric.modelo === b.nombre)!
+  return first.RMSE - second.RMSE || first.MAE - second.MAE
+})
 export const metadata = data.metadatos
 export const dates = [...new Set(data.predicciones.map((row) => row.fecha))].sort()
 export const periodOptions: Record<Scale, string[]> = { diaria: dates, semanal: [], mensual: [] }
@@ -56,7 +60,7 @@ export const yearlyTrend = data.anios
 export const timeHeatmap = data.calor.map((values, i) => ({day: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"][i], values}))
 export const timeSlots = ["00–05", "06–11", "12–17", "18–23"]
 export const peak = timeHeatmap.flatMap((row) => row.values.map((value, i) => ({day: row.day, slot: timeSlots[i], value}))).sort((a,b) => b.value-a.value)[0]
-export const modelScores = data.metricas.map((metric) => ({
+export const modelScores = [...data.metricas].sort((a, b) => a.RMSE - b.RMSE || a.MAE - b.MAE).map((metric) => ({
   name: metric.modelo, description: "Validación diaria · septiembre–diciembre 2024",
   scores: { diaria: {mae: metric.MAE, rmse: metric.RMSE} }, bias: metric.sesgo,
 }))

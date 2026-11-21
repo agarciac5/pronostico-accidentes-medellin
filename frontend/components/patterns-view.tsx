@@ -47,7 +47,7 @@ export function PatternsView({ periodLabel }: { periodLabel: string }) {
         <article className="surface-card heatmap-card">
           <div className="surface-card-header">
             <PanelHeading
-              title="¿Cuándo se concentran los accidentes?"
+              title="¿Qué días y franjas concentran más accidentes?"
               description="Frecuencia por día de la semana y franja horaria"
               action={<span className="quiet-count">Día × hora</span>}
             />
@@ -119,7 +119,7 @@ export function PatternsView({ periodLabel }: { periodLabel: string }) {
         <article className="surface-card">
           <div className="surface-card-header">
             <PanelHeading
-              title="Accidentes por mes"
+              title="¿Qué meses registran más accidentes en promedio?"
               description="Promedio de totales registrados por mes · 2021–ago 2025"
               action={<span className="quiet-count">Estacionalidad</span>}
             />
@@ -142,7 +142,7 @@ export function PatternsView({ periodLabel }: { periodLabel: string }) {
         <article className="surface-card">
           <div className="surface-card-header">
             <PanelHeading
-              title="Tendencia anual"
+              title="¿Cuántos accidentes se registraron cada año?"
               description="Serie de referencia 2021–2025"
               action={<span className="quiet-count">2025 parcial</span>}
             />

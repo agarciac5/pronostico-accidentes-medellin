@@ -144,7 +144,7 @@ export function MobilityDashboard() {
           </span>
           <span className="brand-copy">
             <strong>Movilidad</strong>
-            <small>Medellín · Observatorio vial</small>
+            <small>Medellín</small>
           </span>
           <button
             className="sidebar-close icon-button"

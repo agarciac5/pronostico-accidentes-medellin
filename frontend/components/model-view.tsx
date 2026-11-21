@@ -95,8 +95,8 @@ export function ModelView({ rows, scale, selectedCommuneName, selectedModel, onM
       <article className="surface-card model-table-card">
         <div className="surface-card-header">
           <PanelHeading
-            title="Comparación de modelos"
-            description="Error medio absoluto (MAE) y raíz del error cuadrático medio (RMSE)"
+            title="¿Qué modelo tiene menor error?"
+            description="De menor a mayor RMSE; MAE como desempate. Menor error es mejor."
             action={
               <label className="header-select">
                 <span>Modelo del tablero</span>
@@ -158,7 +158,7 @@ export function ModelView({ rows, scale, selectedCommuneName, selectedModel, onM
         <article className="surface-card">
           <div className="surface-card-header">
             <PanelHeading
-              title="Error por comuna"
+              title="¿Cuánto se equivoca el modelo en cada comuna?"
               description={`MAE · ${selectedName} · ${selectedCommuneName}`}
               action={<span className="quiet-count">MAE · {scaleLabels[scale]}</span>}
             />
@@ -198,7 +198,7 @@ export function ModelView({ rows, scale, selectedCommuneName, selectedModel, onM
         <article className="surface-card validation-card">
           <div className="surface-card-header">
             <PanelHeading
-              title="Validación temporal"
+              title="¿Cómo se evaluaron las estimaciones?"
               description="Esquema recomendado para evitar fuga de información"
             />
           </div>
